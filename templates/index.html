@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Señales ECG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen"> 
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 text-center">
+                Analizador de Señales ECG
+            </h1>
+            <p class="text-center text-gray-600 mt-2">Sistema de análisis de electrocardiograma</p>
+        </header>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Cargar Datos ECG</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Seleccionar archivo
+                            </label>
+                            <input 
+                                type="file" 
+                                id="fileInput" 
+                                accept=".csv,.txt,.json"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                            />
+                        </div>
+                        <button 
+                            id="loadSampleBtn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                        >
+                            Cargar Señal de Ejemplo
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Parámetros</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Frecuencia de Muestreo (Hz)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="samplingRate" 
+                                value="250" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Umbral de Detección
+                            </label>
+                            <input 
+                                type="range" 
+                                id="threshold" 
+                                min="0" 
+                                max="100" 
+                                value="50" 
+                                class="w-full"
+                            />
+                            <span id="thresholdValue" class="text-sm text-gray-600">50%</span>
+                        </div>
+                        <button 
+                            id="analyzeBtn"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                        >
+                            Analizar Señal
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Resultados</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Frecuencia Cardíaca:</span>
+                            <span id="heartRate" class="text-lg font-bold text-red-600">-- bpm</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Picos R Detectados:</span>
+                            <span id="rPeaks" class="text-lg font-bold text-blue-600">--</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Intervalo RR Promedio:</span>
+                            <span id="rrInterval" class="text-lg font-bold text-green-600">-- ms</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Duración:</span>
+                            <span id="duration" class="text-lg font-bold text-purple-600">-- s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Señal ECG</h2>
+                    <div class="relative">
+                        <canvas id="ecgChart" class="w-full" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Variabilidad de Frecuencia Cardíaca (HRV)</h2>
+                    <div class="relative">
+                        <canvas id="hrvChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="statusMessage" class="mt-6 hidden">
+            <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg" role="alert">
+                <p class="font-medium">Información</p>
+                <p id="statusText">Procesando datos...</p>
+            </div>
+        </div>
+    </div>
+    <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Pacientes - Sistema ECG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-white to-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">
+                        Sistema de Registro de Pacientes
+                    </h1>
+                    <p class="text-gray-600 mt-2">Gestión de información para análisis ECG</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Usuario: <span class="font-semibold">Gustavo Silva</span></p>
+                    <p class="text-sm text-gray-500">Fecha: <span id="currentDate"></span></p>
+                </div>
+            </div>
+        </header>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        Nuevo Paciente
+                    </h2>
+
+                    <form id="patientForm" class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                ID del Paciente
+                            </label>
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    id="patientId" 
+                                    readonly
+                                    class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-mono text-lg cursor-not-allowed"
+                                    placeholder="Se generará automáticamente"
+                                />
+                                <div class="absolute right-3 top-3 text-green-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">* Generado automáticamente</p>
+                        </div>
+                        <div>
+                            <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Nombre Completo *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="fullName" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Ej: Juan Pérez García"
+                            />
+                        </div>
+                        <div>
+                            <label for="age" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Edad *
+                            </label>
+                            <input 
+                                type="number" 
+                                id="age" 
+                                required
+                                min="0"
+                                max="120"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Ej: 45"
+                            />
+                        </div>
+                        <div>
+                            <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Género
+                            </label>
+                            <select 
+                                id="gender"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Seleccionar...</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="O">Otro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="notes" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Notas Adicionales
+                            </label>
+                            <textarea 
+                                id="notes"
+                                rows="3"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                placeholder="Información adicional del paciente..."
+                            ></textarea>
+                        </div>
+                        <div class="flex gap-3 pt-4">
+                            <button 
+                                type="submit"
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
+                            >
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Registrar
+                            </button>
+                            <button 
+                                type="button"
+                                id="clearBtn"
+                                class="bg-gray-300 hover:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+                            >
+                                Limpiar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Estadísticas</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Total Pacientes:</span>
+                            <span id="totalPatients" class="text-xl font-bold text-blue-600">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Registrados Hoy:</span>
+                            <span id="todayPatients" class="text-xl font-bold text-green-600">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                            Lista de Pacientes
+                        </h2>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="searchInput"
+                                placeholder="Buscar paciente..."
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                            />
+                            <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b-2 border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Edad</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Género</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha Registro</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientTableBody" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No hay pacientes registrados</h3>
+                        <p class="mt-1 text-sm text-gray-500">Comienza registrando un nuevo paciente</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-md mx-4 transform transition-all">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mt-4">¡Paciente Registrado!</h3>
+                    <p class="text-sm text-gray-500 mt-2">El paciente ha sido registrado exitosamente en el sistema.</p>
+                    <div class="mt-6">
+                        <button 
+                            id="closeModalBtn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                        >
+                            Aceptar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="registro.js"></script>
+</body>
+</html>
