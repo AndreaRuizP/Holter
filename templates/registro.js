@@ -1,4 +1,3 @@
-// Clase para manejar pacientes
 class PatientManager {
     constructor() {
         this.patients = this.loadPatients();
@@ -127,7 +126,7 @@ class PatientManager {
             const pageHeight = 297;
             const margin = 20;
 
-            // ============ HEADER ============
+            // Header del PDF
             doc.setFillColor(...primaryColor);
             doc.rect(0, 0, pageWidth, 25, 'F');
 
@@ -139,7 +138,7 @@ class PatientManager {
             doc.setFillColor(...accentColor);
             doc.rect(0, 25, pageWidth, 3, 'F');
 
-            // ============ INFORMACIÓN DEL PACIENTE ============
+            // Informacion del paciente
             let yPos = 45;
 
             doc.setFillColor(...bgLight);
@@ -222,7 +221,7 @@ class PatientManager {
             doc.setLineWidth(0.5);
             doc.line(margin, yPos, pageWidth - margin, yPos);
 
-            // ============ OBSERVACIONES ============
+            // Observaciones
             yPos += 12;
 
             doc.setTextColor(...textDark);
@@ -254,7 +253,7 @@ class PatientManager {
             doc.setLineWidth(0.5);
             doc.line(margin, yPos, pageWidth - margin, yPos);
 
-            // ============ RESULTADOS DEL ESTUDIO ECG ============
+            // Resultados del ecg
             yPos += 12;
 
             doc.setTextColor(...textDark);

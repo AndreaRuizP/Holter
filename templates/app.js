@@ -1,21 +1,17 @@
 console.log('=== Iniciando app.js ===');
 
-// Verificar librerías
 console.log('Chart disponible:', typeof Chart !== 'undefined');
 console.log('jsPDF disponible:', typeof window.jspdf !== 'undefined');
 
-// Variables globales
 let ecgData = [];
 let ecgChart = null;
 let hrvChart = null;
 let rPeaksIndices = [];
 let currentPatient = null;
 
-// Esperar a que el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado');
     
-    // Verificar elementos
     console.log('ecgChart canvas:', document.getElementById('ecgChart'));
     console.log('hrvChart canvas:', document.getElementById('hrvChart'));
     
@@ -30,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Configurar event listeners
 function setupEventListeners() {
     const fileInput = document.getElementById('fileInput');
     const loadSampleBtn = document.getElementById('loadSampleBtn');
@@ -205,10 +200,8 @@ function saveAnalysisResults(results) {
         currentPatient.ecgResults = results;
         currentPatient.analysisDate = new Date().toISOString();
         
-        // Actualizar en localStorage
         localStorage.setItem('selected_patient', JSON.stringify(currentPatient));
         
-        // También actualizar en la lista de pacientes
         const patients = JSON.parse(localStorage.getItem('ecg_patients') || '[]');
         const index = patients.findIndex(p => p.id === currentPatient.id);
         if (index !== -1) {
@@ -222,7 +215,7 @@ function saveAnalysisResults(results) {
     }
 }
 
-// Generar datos de ejemplo
+// Generar datos de muestras
 function generateSampleECG(duration = 10, samplingRate = 250, heartRate = 75) {
     const samples = duration * samplingRate;
     const data = [];
@@ -253,7 +246,7 @@ function generateSampleECG(duration = 10, samplingRate = 250, heartRate = 75) {
     return data;
 }
 
-// Cargar datos de ejemplo
+// Cargar datos de muestras
 function loadSampleData() {
     console.log('Cargando señal de ejemplo...');
     showStatus('Generando señal ECG de ejemplo...', 'info');
