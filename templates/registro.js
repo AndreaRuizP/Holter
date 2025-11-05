@@ -421,7 +421,27 @@ class PatientManager {
             try {
                 localStorage.setItem('selected_patient', JSON.stringify(patient));
                 console.log('Paciente seleccionado para análisis:', patient);
-                window.location.href = 'index.html';
+                let targetUrl = '';
+                try {
+                    const path = window.location.pathname || '';
+                    const protocol = window.location.protocol || '';
+
+                    if (path.includes('/templates/') || path.includes('\\templates\\')) {
+                        targetUrl = 'ecg.html';
+                    } else if (protocol === 'file:') {
+                        // En file: es más fiable usar la ruta relativa a la carpeta templates
+                        targetUrl = 'templates/ecg.html';
+                    } else {
+                        // Servido por HTTP(S) desde un host: usar ruta absoluta hacia /templates
+                        targetUrl = '/templates/ecg.html';
+                    }
+                } catch (e) {
+                    // Fallback simple si algo inesperado falla
+                    targetUrl = 'ecg.html';
+                }
+
+                console.log('Redirigiendo a:', targetUrl);
+                window.location.href = targetUrl;
             } catch (error) {
                 console.error('Error al seleccionar paciente:', error);
                 alert('Error al seleccionar el paciente');
